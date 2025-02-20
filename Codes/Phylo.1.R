@@ -12,7 +12,7 @@ taxa_list <- data.frame(
   family = c("Fagaceae", "Fagaceae", "Pinaceae", "Betulaceae")
 )
 
-tree <- phylo.maker(taxa_list, output.tree = TRUE)
+tree <- phylo.maker(taxa_list, output.tree = TRUE, output.sp.list = TRUE)
 
 tree_calibrated <- phylo.maker(taxa_list, output.tree = TRUE,
                                output.sp.list = TRUE, scenario = "S3")
