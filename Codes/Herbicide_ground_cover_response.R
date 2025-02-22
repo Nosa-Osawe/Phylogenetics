@@ -48,16 +48,19 @@ pre_spay <- plant %>%
   summarise(mean_ground = mean(Rows)) %>% 
   as.data.frame()
 
-q1_cover <- pre_spay %>% 
-  filter(Q=="Q1") %>% 
-  select(mean_ground) %>% 
-  as.data.frame()
-
 species <-  pre_spay %>% 
   filter(Q=="Q1") %>% 
   select(Scientific_name) %>% 
   as.data.frame()
 species<-species$Scientific_name
+
+
+# Q!
+q1_cover <- pre_spay %>% 
+  filter(Q=="Q1") %>% 
+  select(mean_ground) %>% 
+  as.data.frame()
+
 q1_cover<- as.vector(t(q1_cover))
 names(q1_cover) <- species 
 
@@ -65,7 +68,148 @@ names(q1_cover) <- species
 q1.signal <- phylosig(plant_tree$scenario.3, q1_cover, method = "K")
 print(q1.signal)
 
+# Q2
+q2_cover <- pre_spay %>% 
+  filter(Q=="Q2") %>% 
+  select(mean_ground) %>% 
+  as.data.frame()
+
+q2_cover<- as.vector(t(q2_cover))
+names(q2_cover) <- species 
+
+# Blomberg’s K for phylogenetic signal
+q2.signal <- phylosig(plant_tree$scenario.3, q2_cover, method = "K")
+print(q2.signal)
+
+######################################################################################
+
+# Based on the methodology, we have to do away with some rows.
+
+G.cover <- plant %>% 
+  pivot_longer(
+    cols = -c(1:9),
+    names_to = "Q",
+    values_to = "Rows"
+  ) %>% 
+  filter(!Q %in% c("Q3", "Q6", "Q9", "Q12", "Q15")) %>%
+  select(Week, Scientific_name, Q, Rows) %>% 
+  mutate(Week = factor(Week)) %>% 
+  mutate(Rep = case_when(
+    Q %in% c("Q1", "Q2")  ~ "R1",
+    Q %in% c("Q4", "Q5")  ~ "R2",
+    Q %in% c("Q7", "Q8")  ~ "R3",
+    Q %in% c("Q10", "Q11")  ~ "R4",
+    Q %in% c("Q13", "Q14") ~ "R5",
+    Q %in% c("Q16", "Q17") ~ "R6"
+  )) %>% 
+  group_by(Week, Rep, Scientific_name) %>% 
+  summarise(mean_ground = mean(Rows)) %>% 
+  as.data.frame()
+
+# Just to get the species name-- nothing more
+species <-  G.cover %>% 
+  filter(Rep=="R1", Week=="0") %>% 
+  select(Scientific_name) %>% 
+  as.data.frame()
+species<-species$Scientific_name
 
 
+# The first replicate: R1
+R1_cover <- G.cover %>% 
+  filter(Rep=="R1", Week=="0") %>% 
+  select(mean_ground) %>% 
+  as.data.frame()
 
+R1_cover<- as.vector(t(R1_cover))
+names(R1_cover) <- species 
+
+# Blomberg’s K for phylogenetic signal
+R1.signal <- phylosig(plant_tree$scenario.3, R1_cover, 
+                      method = "K", nsim = 999)
+print(R1.signal)
+
+
+# Create a function to make things work faster and avoid too much repetition:
+
+Phylo_sig <- function(Rep, Week) {
+  R_cover <- G.cover %>% 
+    filter(Rep == !!Rep, Week == !!Week) %>% 
+    select(mean_ground) %>% 
+    as.data.frame()
+  
+  R_cover <- as.vector(t(R_cover))
+  names(R_cover) <- species 
+  
+  R_signal <- phylosig(plant_tree$scenario.3, R_cover, 
+                       method = "K", nsim = 999)
+
+  print(R_signal)}
+
+
+# Pre-spray: Week = 0
+
+Phylo_sig(Rep = "R1", Week = "0")
+Phylo_sig(Rep = "R2", Week = "0")
+Phylo_sig(Rep = "R3", Week = "0")
+Phylo_sig(Rep = "R4", Week = "0")
+Phylo_sig(Rep = "R5", Week = "0")
+Phylo_sig(Rep = "R6", Week = "0")
+
+
+# Week = 3
+Phylo_sig(Rep = "R1", Week = "3")
+Phylo_sig(Rep = "R2", Week = "3")
+Phylo_sig(Rep = "R3", Week = "3")
+Phylo_sig(Rep = "R4", Week = "3")
+Phylo_sig(Rep = "R5", Week = "3")
+Phylo_sig(Rep = "R6", Week = "3")
+
+
+# Week = 7
+Phylo_sig(Rep = "R1", Week = "7")
+Phylo_sig(Rep = "R2", Week = "7")
+Phylo_sig(Rep = "R3", Week = "7")
+Phylo_sig(Rep = "R4", Week = "7")
+Phylo_sig(Rep = "R5", Week = "7")
+Phylo_sig(Rep = "R6", Week = "7")
+
+
+# Week = 9
+Phylo_sig(Rep = "R1", Week = "9")
+Phylo_sig(Rep = "R2", Week = "9")
+Phylo_sig(Rep = "R3", Week = "9")
+Phylo_sig(Rep = "R4", Week = "9")
+Phylo_sig(Rep = "R5", Week = "9")
+Phylo_sig(Rep = "R6", Week = "9")
+
+
+# Week = 11
+Phylo_sig(Rep = "R1", Week = "11")
+Phylo_sig(Rep = "R2", Week = "11")
+Phylo_sig(Rep = "R3", Week = "11")
+Phylo_sig(Rep = "R4", Week = "11")
+Phylo_sig(Rep = "R5", Week = "11")
+Phylo_sig(Rep = "R6", Week = "11")
+
+# So, I have to manually fetch all # Blomberg’s K  value,
+# because I cant find a R script to build it up.
+# I'd bring back the result from Excel file!! Thanks for your understanding!
+
+
+signals <- read_excel("C:\\Users\\DELL\\Documents\\Git in R\\Phylogenetics\\Data\\Herbicide_Phylogenetic.xlsx", 
+                    sheet = "signals")
+view(signals)
+
+signals %>% 
+  mutate(Week= factor(Week)) %>% 
+  pivot_longer(cols = -1,
+               names_to = "Replicates",
+               values_to = "Signals"
+               ) %>% 
+  mutate(Week= as.numeric(Week),
+         Replicates= factor(Replicates)) %>% 
+  ggplot(aes(y= Signals, x= Week, fill = Replicates, colour = Replicates))+
+  geom_point(aes(size = 3))+
+  geom_line()+
+  theme_bw()
 
