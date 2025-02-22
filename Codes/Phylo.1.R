@@ -53,3 +53,5 @@ names(trait_values) <- taxa_list$species  # Assign names to match species
 # Calculate Blomberg’s K for phylogenetic signal
 phylo_signal <- phylosig(tree$scenario.3, trait_values, method = "K")
 print(phylo_signal)
+
+view(trait_values)
