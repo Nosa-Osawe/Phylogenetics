@@ -14,9 +14,6 @@ taxa_list <- data.frame(
 
 tree <- phylo.maker(taxa_list, output.tree = TRUE, output.sp.list = TRUE)
 
-tree_calibrated <- phylo.maker(taxa_list, output.tree = TRUE,
-                               output.sp.list = TRUE, scenario = "S3")
-plot(tree$scenario.3, show.tip.label = TRUE)
 
 plot(tree_calibrated$scenario.3, show.tip.label = TRUE)
 
