@@ -5,6 +5,8 @@ library(tidyverse)
 library(readxl)
 library(vegan)
 library(phytools)
+library(mgcv)
+
 
 plant <- read_excel("C:\\Users\\DELL\\Documents\\Git in R\\Phylogenetics\\Data\\Herbicide_Phylogenetic.xlsx", 
                     sheet = "Sheet1")
@@ -196,20 +198,107 @@ Phylo_sig(Rep = "R6", Week = "11")
 # I'd bring back the result from Excel file!! Thanks for your understanding!
 
 
+
+
+
 signals <- read_excel("C:\\Users\\DELL\\Documents\\Git in R\\Phylogenetics\\Data\\Herbicide_Phylogenetic.xlsx", 
                     sheet = "signals")
 view(signals)
 
+colour_choice <- c("orange", "red", "black", "brown", "darkgreen","purple")
+
 signals %>% 
-  mutate(Week= factor(Week)) %>% 
+ # mutate(Week= factor(Week)) %>% 
   pivot_longer(cols = -1,
                names_to = "Replicates",
                values_to = "Signals"
                ) %>% 
   mutate(Week= as.numeric(Week),
          Replicates= factor(Replicates)) %>% 
-  ggplot(aes(y= Signals, x= Week, fill = Replicates, colour = Replicates))+
-  geom_point(aes(size = 3))+
-  geom_line()+
-  theme_bw()
+  ggplot(aes(y= Signals, x= Week, colour = Replicates))+
+  geom_point(aes(size = 1), alpha = 0.7)+
+  geom_line(aes(size = 0.5))+
+  scale_fill_manual(values = colour_choice)+
+  scale_colour_manual(values = colour_choice)+
+  scale_x_continuous(breaks = c(0,3,7,9,11)) +
+  theme_classic()
 
+signal_L <- signals %>% 
+  pivot_longer(cols = -1,
+               names_to = "Replicates",
+               values_to = "Signals"
+  ) %>% 
+  mutate(Week= as.numeric(Week),
+         Replicates= factor(Replicates)) %>% 
+  as.data.frame()
+
+lm_model <- lm(Signals ~ Week, data = signal_L)
+summary(lm_model)
+
+library(lme4)
+
+lmer_model <- lmer(Signals ~ Week + (1 | Replicates), data = signal_L)
+summary(lmer_model)
+
+library(lmerTest)
+summary(lmer_model)
+
+anova(lmer_model,lm_model)
+
+library(emmeans)
+library(nlme)
+lme_model <-lme(
+  Signals ~ Week,                      
+  random = ~ 1 | Replicates,           
+  correlation = corAR1(form = ~ Week | Replicates),  
+  data = signal_L
+)
+summary(lme_model) 
+
+
+cover_L <- G.cover %>% 
+  pivot_wider(
+    names_from = "Scientific_name",
+    values_from = mean_ground
+  ) %>% 
+  group_by(Week, Rep) %>% 
+  summarise(total= sum(across(where(is.numeric)))) %>%  
+  as.data.frame() 
+
+signal.cover <- cbind(signal_L, cover_L$total)
+signal.cover <- signal.cover %>% 
+  rename(Cover ="cover_L$total")
+
+# Relationship between plant cover and phylogenetic consevatin signal
+
+lm_mod <- lm(Signals ~ Cover, data = signal.cover)
+summary(lm_mod)
+
+poly_mod <- lm(Signals ~ poly(Cover, 3), data = signal.cover)
+summary(poly_mod)
+
+poly_mixed_nlme <- lme(Signals ~ poly(Cover, 2), random = ~ 1 | Replicates, 
+                       data = signal.cover)
+summary(poly_mixed_nlme)
+ 
+
+signal.cover %>% 
+ ggplot(aes(y= Signals, x= Cover, fill = Replicates, colour = Replicates))+
+  geom_point(aes(y= Signals, x= Cover), size= 2, alpha = 0.7)+
+  scale_fill_manual(values = colour_choice)+
+  scale_colour_manual(values = colour_choice)+
+  geom_line(aes(y = fitted(poly_mixed_nlme)), 
+            linewidth = 1, alpha= 0.5)+
+  scale_x_continuous(breaks = c(0,25,50,75,100)) +
+  theme_light()
+
+### Test for difference in Phylogenetic conservation between pre-spay and post-spray
+
+week0 <- signal.cover %>% 
+  filter(Week=="0")
+
+Week3 <- signal.cover %>% 
+  filter(Week=="3")
+
+t.test(week0$Signals, Week3$Signals)
+t.test(week0$Cover, Week3$Cover)
