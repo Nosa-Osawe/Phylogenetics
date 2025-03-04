@@ -278,10 +278,18 @@ summary(lm_mod)
 poly_mod <- lm(Signals ~ poly(Cover, 3), data = signal.cover)
 summary(poly_mod)
 
+
+ 
+lm_mixed_nlme <- lme(Signals ~ Cover, random = ~ 1 | Replicates, 
+                       data = signal.cover)
+summary(lm_mixed_nlme)
+
 poly_mixed_nlme <- lme(Signals ~ poly(Cover, 2), random = ~ 1 | Replicates, 
                        data = signal.cover)
 summary(poly_mixed_nlme)
- 
+
+
+AIC(lm_mixed_nlme,poly_mixed_nlme )
 
 signal.cover %>% 
  ggplot(aes(y= Signals, x= Cover, fill = Replicates, colour = Replicates))+
