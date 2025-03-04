@@ -216,12 +216,13 @@ signals %>%
   mutate(Week= as.numeric(Week),
          Replicates= factor(Replicates)) %>% 
   ggplot(aes(y= Signals, x= Week, colour = Replicates))+
-  geom_point(aes(size = 1), alpha = 0.7)+
-  geom_line(aes(size = 0.5))+
+  geom_point(alpha = 0.7)+
+  geom_line(linewidth = 0.7)+
   scale_fill_manual(values = colour_choice)+
   scale_colour_manual(values = colour_choice)+
   scale_x_continuous(breaks = c(0,3,7,9,11)) +
-  theme_classic()
+  theme_classic()+ 
+  labs( y = "Phylogenetic signal K")
 
 signal_L <- signals %>% 
   pivot_longer(cols = -1,
@@ -290,6 +291,8 @@ signal.cover %>%
   geom_line(aes(y = fitted(poly_mixed_nlme)), 
             linewidth = 1, alpha= 0.5)+
   scale_x_continuous(breaks = c(0,25,50,75,100)) +
+  labs(y = "Phylogenetic signal",
+       x = "Plant cover (%)")+
   theme_light()
 
 ### Test for difference in Phylogenetic conservation between pre-spay and post-spray
