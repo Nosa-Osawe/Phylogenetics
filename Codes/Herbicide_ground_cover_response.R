@@ -6,6 +6,10 @@ library(readxl)
 library(vegan)
 library(phytools)
 library(mgcv)
+library(emmeans)
+library(nlme)
+library(lme4)
+library(lmerTest)
 
 
 plant <- read_excel("C:\\Users\\DELL\\Documents\\Git in R\\Phylogenetics\\Data\\Herbicide_Phylogenetic.xlsx", 
@@ -236,18 +240,17 @@ signal_L <- signals %>%
 lm_model <- lm(Signals ~ Week, data = signal_L)
 summary(lm_model)
 
-library(lme4)
+
 
 lmer_model <- lmer(Signals ~ Week + (1 | Replicates), data = signal_L)
 summary(lmer_model)
 
-library(lmerTest)
+
 summary(lmer_model)
 
 anova(lmer_model,lm_model)
 
-library(emmeans)
-library(nlme)
+
 lme_model <-lme(
   Signals ~ Week,                      
   random = ~ 1 | Replicates,           
@@ -313,3 +316,14 @@ Week3 <- signal.cover %>%
 
 t.test(week0$Signals, Week3$Signals)
 t.test(week0$Cover, Week3$Cover)
+
+
+#############################################################################
+
+# Load libraries
+library(ape)        # For phylogenetic tree manipulation
+library(phytools)   # For phylogenetic signal (Blomberg's K)
+library(nlme)       # For PGLS regression
+
+install.packages("caper")
+library(caper)      # For comparative phylogenetic analyses
