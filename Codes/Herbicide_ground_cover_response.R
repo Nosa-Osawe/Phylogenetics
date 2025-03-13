@@ -138,7 +138,7 @@ print(R1.signal)
 
 Phylo_sig <- function(Rep, Week) {
   R_cover <- G.cover %>% 
-    filter(Rep == !!Rep, Week == !!Week) %>% 
+    filter(Rep == !!Rep, Week == !!Week) %>% # where Rep matches the input [Rep]
     select(mean_ground) %>% 
     as.data.frame()
   
