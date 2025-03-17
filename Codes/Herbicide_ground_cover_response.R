@@ -224,7 +224,7 @@ signals %>%
   scale_fill_manual(values = colour_choice)+
   scale_colour_manual(values = colour_choice)+
   scale_x_continuous(breaks = c(0,3,7,9,11)) +
-  theme_classic()+ 
+  theme_light()+
   labs( y = "Phylogenetic signal K")
 
 signal_L <- signals %>% 
@@ -303,6 +303,43 @@ signal.cover %>%
   scale_x_continuous(breaks = c(0,25,50,75,100)) +
   labs(y = "Phylogenetic signal",
        x = "Plant cover (%)")+
+  theme_light()
+
+
+signal.cover %>% 
+  ggplot()+
+  geom_point(aes(y= Signals, x= Cover, fill = Replicates, colour = Replicates),
+             size= 2, alpha = 0.7)+
+  scale_fill_manual(values = colour_choice)+
+  scale_colour_manual(values = colour_choice)+
+  geom_line(aes(y = fitted(poly_mixed_nlme), x= Cover, 
+                colour = Replicates), 
+            linewidth = 1, alpha= 0.5)+
+  geom_smooth(aes(y= Signals, x= Cover), se = TRUE,
+              method = "loess",level = 0.80, alpha = 0.2)+
+  scale_x_continuous(breaks = c(0,25,50,75,100)) +
+  labs(y = "Phylogenetic signal",
+       x = "Plant cover (%)")+
+  theme_light()
+
+# MEan +- SE of plant cover
+signal.cover %>% 
+  group_by(Week) %>% 
+  summarise(cover = mean(Cover),
+            SE = sd(Cover)/sqrt(6))
+
+
+signal.cover %>% 
+  ggplot()+
+  geom_point(aes(y= Cover, x= Week, fill = Replicates, colour = Replicates), size= 2, alpha = 0.7)+
+  scale_fill_manual(values = colour_choice)+
+  scale_colour_manual(values = colour_choice)+
+  geom_line(aes(y= Cover, x= Week, colour = Replicates),
+            linewidth = 1, alpha= 0.5)+
+
+  scale_x_continuous(breaks = c(0,3,7,9,11)) +
+  labs(x = "Week",
+       y = "Plant cover (%)")+
   theme_light()
 
 ### Test for difference in Phylogenetic conservation between pre-spay and post-spray
