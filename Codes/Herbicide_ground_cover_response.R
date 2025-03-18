@@ -206,7 +206,7 @@ Phylo_sig(Rep = "R6", Week = "11")
 
 signals <- read_excel("C:\\Users\\DELL\\Documents\\Git in R\\Phylogenetics\\Data\\Herbicide_Phylogenetic.xlsx", 
                     sheet = "signals")
-view(signals)
+# view(signals)
 
 colour_choice <- c("orange", "red", "black", "brown", "darkgreen","purple")
 
@@ -312,9 +312,9 @@ signal.cover %>%
              size= 2, alpha = 0.7)+
   scale_fill_manual(values = colour_choice)+
   scale_colour_manual(values = colour_choice)+
-  geom_line(aes(y = fitted(poly_mixed_nlme), x= Cover, 
+  geom_line(aes(y = fitted(poly_mixed_nlme), x= Cover,
                 colour = Replicates), 
-            linewidth = 1, alpha= 0.5)+
+            linewidth = 1, alpha= 0.5, linetype = 2)+
   geom_smooth(aes(y= Signals, x= Cover), se = TRUE,
               method = "loess",level = 0.80, alpha = 0.2)+
   scale_x_continuous(breaks = c(0,25,50,75,100)) +
