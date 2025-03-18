@@ -218,7 +218,8 @@ signals %>%
                ) %>% 
   mutate(Week= as.numeric(Week),
          Replicates= factor(Replicates)) %>% 
-  ggplot(aes(y= Signals, x= Week, colour = Replicates))+
+  rename(Plots = "Replicates") %>% 
+  ggplot(aes(y= Signals, x= Week, colour = Plots))+
   geom_point(alpha = 0.7)+
   geom_line(linewidth = 0.7)+
   scale_fill_manual(values = colour_choice)+
@@ -295,7 +296,7 @@ AIC(lm_mixed_nlme,poly_mixed_nlme )
 
 signal.cover %>% 
  ggplot(aes(y= Signals, x= Cover, fill = Replicates, colour = Replicates))+
-  geom_point(aes(y= Signals, x= Cover), size= 2, alpha = 0.7)+
+  geom_point(size= 2, alpha = 0.7)+
   scale_fill_manual(values = colour_choice)+
   scale_colour_manual(values = colour_choice)+
   geom_line(aes(y = fitted(poly_mixed_nlme)), 
@@ -303,24 +304,25 @@ signal.cover %>%
   scale_x_continuous(breaks = c(0,25,50,75,100)) +
   labs(y = "Phylogenetic signal",
        x = "Plant cover (%)")+
-  theme_light()
+  theme_light() 
 
 
 signal.cover %>% 
+  rename(Plots = "Replicates") %>% 
   ggplot()+
-  geom_point(aes(y= Signals, x= Cover, fill = Replicates, colour = Replicates),
+  geom_point(aes(y= Signals, x= Cover, fill = Plots, colour = Plots),
              size= 2, alpha = 0.7)+
   scale_fill_manual(values = colour_choice)+
   scale_colour_manual(values = colour_choice)+
   geom_line(aes(y = fitted(poly_mixed_nlme), x= Cover,
-                colour = Replicates), 
+                colour = Plots), 
             linewidth = 1, alpha= 0.5, linetype = 2)+
   geom_smooth(aes(y= Signals, x= Cover), se = TRUE,
               method = "loess",level = 0.80, alpha = 0.2)+
   scale_x_continuous(breaks = c(0,25,50,75,100)) +
   labs(y = "Phylogenetic signal",
        x = "Plant cover (%)")+
-  theme_light()
+  theme_light() 
 
 # MEan +- SE of plant cover
 signal.cover %>% 
@@ -330,11 +332,13 @@ signal.cover %>%
 
 
 signal.cover %>% 
+  rename(Plots= "Replicates") %>% 
   ggplot()+
-  geom_point(aes(y= Cover, x= Week, fill = Replicates, colour = Replicates), size= 2, alpha = 0.7)+
+  geom_point(aes(y= Cover, x= Week, fill = Plots,
+                 colour = Plots), size= 2, alpha = 0.7)+
   scale_fill_manual(values = colour_choice)+
   scale_colour_manual(values = colour_choice)+
-  geom_line(aes(y= Cover, x= Week, colour = Replicates),
+  geom_line(aes(y= Cover, x= Week, colour = Plots),
             linewidth = 1, alpha= 0.5)+
 
   scale_x_continuous(breaks = c(0,3,7,9,11)) +
