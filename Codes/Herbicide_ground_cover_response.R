@@ -9,7 +9,7 @@ library(emmeans)
 library(nlme)
 library(lme4)
 library(lmerTest)
-
+library(performance)
 
 plant <- read_excel("C:\\Users\\DELL\\Documents\\Git in R\\Phylogenetics\\Data\\Herbicide_Phylogenetic.xlsx", 
                     sheet = "Sheet1")
@@ -286,11 +286,16 @@ summary(poly_mod)
 lm_mixed_nlme <- lme(Signals ~ Cover, random = ~ 1 | Replicates, 
                        data = signal.cover)
 summary(lm_mixed_nlme)
+check_model(lm_mixed_nlme)
+model_performance(lm_mixed_nlme)
+
 
 poly_mixed_nlme <- lme(Signals ~ poly(Cover, 2), random = ~ 1 | Replicates, 
                        data = signal.cover)
 summary(poly_mixed_nlme)
 
+model_performance(poly_mixed_nlme)
+check_model(poly_mixed_nlme)
 
 AIC(lm_mixed_nlme,poly_mixed_nlme )
 
