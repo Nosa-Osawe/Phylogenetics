@@ -13,7 +13,7 @@ library(performance)
 
 plant <- read_excel("C:\\Users\\DELL\\Documents\\Git in R\\Phylogenetics\\Data\\Herbicide_Phylogenetic.xlsx", 
                     sheet = "Sheet1")
-view(plant)
+# view(plant)
 sum(is.na(plant$Q11))
 
 plant$Q11 <- as.numeric(plant$Q11)
@@ -60,32 +60,6 @@ species <-  pre_spay %>%
 species<-species$Scientific_name
 
 
-# Q!
-q1_cover <- pre_spay %>% 
-  filter(Q=="Q1") %>% 
-  select(mean_ground) %>% 
-  as.data.frame()
-
-q1_cover<- as.vector(t(q1_cover))
-names(q1_cover) <- species 
-
-# Blomberg’s K for phylogenetic signal
-q1.signal <- phylosig(plant_tree$scenario.3, q1_cover, method = "K")
-print(q1.signal)
-
-# Q2
-q2_cover <- pre_spay %>% 
-  filter(Q=="Q2") %>% 
-  select(mean_ground) %>% 
-  as.data.frame()
-
-q2_cover<- as.vector(t(q2_cover))
-names(q2_cover) <- species 
-
-# Blomberg’s K for phylogenetic signal
-q2.signal <- phylosig(plant_tree$scenario.3, q2_cover, method = "K")
-print(q2.signal)
-
 ######################################################################################
 
 # Based on the methodology, we have to do away with some rows.
@@ -118,7 +92,7 @@ species <-  G.cover %>%
   as.data.frame()
 species<-species$Scientific_name
 
-
+#-------------------- as a test----------------
 # The first replicate: R1
 R1_cover <- G.cover %>% 
   filter(Rep=="R1", Week=="0") %>% 
@@ -211,7 +185,6 @@ signals <- read_excel("C:\\Users\\DELL\\Documents\\Git in R\\Phylogenetics\\Data
 colour_choice <- c("orange", "red", "black", "brown", "darkgreen","purple")
 
 signals %>% 
- # mutate(Week= factor(Week)) %>% 
   pivot_longer(cols = -1,
                names_to = "Replicates",
                values_to = "Signals"
@@ -237,9 +210,10 @@ signal_L <- signals %>%
          Replicates= factor(Replicates)) %>% 
   as.data.frame()
 
+####------ compare performance of different models to see which does best
+#----------- at explanation
 lm_model <- lm(Signals ~ Week, data = signal_L)
 summary(lm_model)
-
 
 
 lmer_model <- lmer(Signals ~ Week + (1 | Replicates), data = signal_L)
@@ -274,13 +248,12 @@ signal.cover <- signal.cover %>%
   rename(Cover ="cover_L$total")
 
 # Relationship between plant cover and phylogenetic consevatin signal
-
+# compare models
 lm_mod <- lm(Signals ~ Cover, data = signal.cover)
 summary(lm_mod)
 
 poly_mod <- lm(Signals ~ poly(Cover, 3), data = signal.cover)
 summary(poly_mod)
-
 
  
 lm_mixed_nlme <- lme(Signals ~ Cover, random = ~ 1 | Replicates, 
@@ -298,6 +271,7 @@ model_performance(poly_mixed_nlme)
 check_model(poly_mixed_nlme)
 
 AIC(lm_mixed_nlme,poly_mixed_nlme )
+# poly_mixed_nlme is best
 
 signal.cover %>% 
  ggplot(aes(y= Signals, x= Cover, fill = Replicates, colour = Replicates))+
