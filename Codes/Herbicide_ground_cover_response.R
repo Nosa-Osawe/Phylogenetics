@@ -339,10 +339,3 @@ t.test(week0$Cover, Week3$Cover)
 
 #############################################################################
 
-# Load libraries
-library(ape)        # For phylogenetic tree manipulation
-library(phytools)   # For phylogenetic signal (Blomberg's K)
-library(nlme)       # For PGLS regression
-
-install.packages("caper")
-library(caper)      # For comparative phylogenetic analyses
