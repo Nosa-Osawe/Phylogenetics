@@ -238,12 +238,10 @@ summary(lm_model)
 
 
 lmer_model <- lmer(Signals ~ Week + (1 | Replicates), data = signal_L)
-summary(lmer_model)
+summary(lmer_model) 
 
-
-summary(lmer_model)
-
-anova(lmer_model,lm_model)
+check_model(lm_mod)   # not bad
+check_model(lmer_model) # poor!
 
 
 lme_model <-lme(
@@ -272,7 +270,7 @@ signal.cover <- signal.cover %>%
 # compare models
 lm_mod <- lm(Signals ~ Cover, data = signal.cover)
 summary(lm_mod)
-
+check_model(lm_mod)
 
  
 lm_mixed_nlme <- lme(Signals ~ Cover, random = ~ 1 | Replicates, 
@@ -287,12 +285,13 @@ poly_mixed_nlme <- lme(Signals ~ poly(Cover, 2), random = ~ 1 | Replicates,
 summary(poly_mixed_nlme)
 
 
-summary(poly_mixed_nlme)
 model_performance(poly_mixed_nlme)
 check_model(poly_mixed_nlme)
 
-AIC(lm_mixed_nlme,poly_mixed_nlme )
 # poly_mixed_nlme is best
+
+
+# Plant cover and phylogenetic signal, by replicate
 
 signal.cover %>% 
  ggplot(aes(y= Signals, x= Cover, fill = Replicates, colour = Replicates))+
