@@ -184,6 +184,7 @@ signals <- read_excel("C:\\Users\\DELL\\Documents\\Git in R\\Phylogenetics\\Data
 
 colour_choice <- c("orange", "red", "black", "brown", "darkgreen","purple")
 
+# As multiple line chart, show signals by replicates
 signals %>% 
   pivot_longer(cols = -1,
                names_to = "Replicates",
@@ -200,6 +201,26 @@ signals %>%
   scale_x_continuous(breaks = c(0,3,7,9,11)) +
   theme_light()+
   labs( y = "Phylogenetic signal K")
+
+# Create single line chart
+signals %>%
+  pivot_longer(cols = R1:R6, 
+               names_to = "Replicate", 
+               values_to = "Value") %>%
+  group_by(Week) %>%
+  summarise(
+    Mean_signal = mean(Value),
+    SEM_signal = sd(Value) / sqrt(n())
+  ) %>% 
+  ggplot(aes(x = Week, y = Mean_signal)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymin = Mean_signal - SEM_signal, 
+                    ymax = Mean_signal + SEM_signal), 
+                width = 0.2) +
+  labs(x = "Week", y = "Phylogenetic signal K") +
+  scale_x_continuous(breaks = c(0,3,7,9,11)) +
+  theme_light()
 
 signal_L <- signals %>% 
   pivot_longer(cols = -1,
@@ -252,8 +273,6 @@ signal.cover <- signal.cover %>%
 lm_mod <- lm(Signals ~ Cover, data = signal.cover)
 summary(lm_mod)
 
-poly_mod <- lm(Signals ~ poly(Cover, 3), data = signal.cover)
-summary(poly_mod)
 
  
 lm_mixed_nlme <- lme(Signals ~ Cover, random = ~ 1 | Replicates, 
@@ -267,6 +286,8 @@ poly_mixed_nlme <- lme(Signals ~ poly(Cover, 2), random = ~ 1 | Replicates,
                        data = signal.cover)
 summary(poly_mixed_nlme)
 
+
+summary(poly_mixed_nlme)
 model_performance(poly_mixed_nlme)
 check_model(poly_mixed_nlme)
 
@@ -286,6 +307,7 @@ signal.cover %>%
   theme_light() 
 
 
+# Signal cover with a genral trend line in (default) blue
 signal.cover %>% 
   rename(Plots = "Replicates") %>% 
   ggplot()+
@@ -310,6 +332,7 @@ signal.cover %>%
             SE = sd(Cover)/sqrt(6))
 
 
+# Plant cover (%) per week in multiple line chart, by replicate plots
 signal.cover %>% 
   rename(Plots= "Replicates") %>% 
   ggplot()+
@@ -324,6 +347,22 @@ signal.cover %>%
   labs(x = "Week",
        y = "Plant cover (%)")+
   theme_light()
+
+# Plant cover (%) per week in single line chat, with SEM from replicate
+signal.cover %>% 
+  group_by(Week) %>% 
+  summarise(Mean_cover = mean(Cover),
+            SE_cover = (sd(Cover)/sqrt(n()))) %>% 
+  ggplot(aes(x = Week, y = Mean_cover)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymin = Mean_cover - SE_cover, 
+                    ymax = Mean_cover + SE_cover), 
+                width = 0.2) +
+  labs(x = "Week", y = "Plant cover (%)") +
+  scale_x_continuous(breaks = c(0,3,7,9,11)) +
+  theme_light()
+  
 
 ### Test for difference in Phylogenetic conservation between pre-spay and post-spray
 
